@@ -1,11 +1,14 @@
 package badreader
 
-import "io"
+import (
+	"io"
+	"math/rand"
+)
 
 // BadStringReader implements io.Reader and is meant to return an error when the
 // internal buffer has been copied or the receiving buffer is full.
 type BadStringReader struct {
-	io.Reader
+	io.ReadSeeker
 	buffer []byte
 	error  error
 }
@@ -26,4 +29,10 @@ func NewBadStringReader(s string, e error) *BadStringReader {
 func (r *BadStringReader) Read(p []byte) (n int, err error) {
 	n = copy(p, r.buffer)
 	return n, r.error
+}
+
+// Seek will always return a random integer and the error that was specified when
+// the reader was created.
+func (r *BadStringReader) Seek(offset int64, whence int) (int64, error) {
+	return rand.Int63(), r.error
 }

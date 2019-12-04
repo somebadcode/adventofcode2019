@@ -2,6 +2,7 @@ package badreader
 
 import (
 	"io"
+	"math"
 	"reflect"
 	"testing"
 )
@@ -76,6 +77,47 @@ func TestNewBadStringReader(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := NewBadStringReader(tt.args.s, tt.args.e); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewBadStringReader() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestBadStringReader_Seek(t *testing.T) {
+	type fields struct {
+		ReadSeeker io.ReadSeeker
+		buffer     []byte
+		error      error
+	}
+	type args struct {
+		offset int64
+		whence int
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    int64
+		wantErr bool
+	}{
+		{
+			want:    math.MaxInt64,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := &BadStringReader{
+				ReadSeeker: tt.fields.ReadSeeker,
+				buffer:     tt.fields.buffer,
+				error:      tt.fields.error,
+			}
+			got, err := r.Seek(tt.args.offset, tt.args.whence)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Seek() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("Seek() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

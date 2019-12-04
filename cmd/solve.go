@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/somebadcode/adventofcode2019/pkg/day1"
+	"github.com/somebadcode/adventofcode2019/pkg/day2"
 	"io"
 	"log"
 	"os"
@@ -13,10 +14,14 @@ import (
 func solve(path string, logger *log.Logger) error {
 	wg := sync.WaitGroup{}
 
-	functions := [][]func(io.Reader) string{
+	functions := [][]func(io.ReadSeeker) string{
 		{
 			day1.PartOne,
 			day1.PartTwo,
+		},
+		{
+			day2.PartOne,
+			day2.PartTwo,
 		},
 	}
 
@@ -27,7 +32,7 @@ func solve(path string, logger *log.Logger) error {
 		}
 
 		wg.Add(1)
-		go func(p1, p2 func(io.Reader) string, day int, f *os.File) {
+		go func(p1, p2 func(io.ReadSeeker) string, day int, f *os.File) {
 			var resultOne, resultTwo string
 
 			defer wg.Done()

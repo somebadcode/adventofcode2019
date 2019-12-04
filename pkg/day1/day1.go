@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func PartOne(r io.Reader) string {
+func PartOne(r io.ReadSeeker) string {
 	var fuelQuantity int64
 
 	scanner := bufio.NewScanner(r)
@@ -27,7 +27,7 @@ func PartOne(r io.Reader) string {
 	return strconv.FormatInt(fuelQuantity, 10)
 }
 
-func PartTwo(r io.Reader) string {
+func PartTwo(r io.ReadSeeker) string {
 	var fuelQuantity int64
 
 	scanner := bufio.NewScanner(r)

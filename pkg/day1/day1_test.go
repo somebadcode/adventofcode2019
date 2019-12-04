@@ -9,7 +9,7 @@ import (
 
 func TestPartOne(t *testing.T) {
 	type args struct {
-		r io.Reader
+		r io.ReadSeeker
 	}
 	tests := []struct {
 		name string
@@ -18,37 +18,37 @@ func TestPartOne(t *testing.T) {
 	}{
 		{
 			args: args{
-				r: strings.NewReader("garbage"),
+				r: io.ReadSeeker(strings.NewReader("garbage")),
 			},
 			want: "strconv.ParseInt: parsing \"garbage\": invalid syntax",
 		},
 		{
 			args: args{
-				r: badreader.NewBadStringReader("666", io.ErrUnexpectedEOF),
+				r: io.ReadSeeker(badreader.NewBadStringReader("666", io.ErrUnexpectedEOF)),
 			},
 			want: io.ErrUnexpectedEOF.Error(),
 		},
 		{
 			args: args{
-				r: strings.NewReader("12"),
+				r: io.ReadSeeker(strings.NewReader("12")),
 			},
 			want: "2",
 		},
 		{
 			args: args{
-				r: strings.NewReader("14"),
+				r: io.ReadSeeker(strings.NewReader("14")),
 			},
 			want: "2",
 		},
 		{
 			args: args{
-				r: strings.NewReader("1969"),
+				r: io.ReadSeeker(strings.NewReader("1969")),
 			},
 			want: "654",
 		},
 		{
 			args: args{
-				r: strings.NewReader("100756"),
+				r: io.ReadSeeker(strings.NewReader("100756")),
 			},
 			want: "33583",
 		},
@@ -65,7 +65,7 @@ func TestPartOne(t *testing.T) {
 
 func TestPartTwo(t *testing.T) {
 	type args struct {
-		r io.Reader
+		r io.ReadSeeker
 	}
 	tests := []struct {
 		name string
@@ -80,25 +80,25 @@ func TestPartTwo(t *testing.T) {
 		},
 		{
 			args: args{
-				r: badreader.NewBadStringReader("666", io.ErrUnexpectedEOF),
+				r: io.ReadSeeker(badreader.NewBadStringReader("666", io.ErrUnexpectedEOF)),
 			},
 			want: io.ErrUnexpectedEOF.Error(),
 		},
 		{
 			args: args{
-				r: strings.NewReader("14"),
+				r: io.ReadSeeker(strings.NewReader("14")),
 			},
 			want: "2",
 		},
 		{
 			args: args{
-				r: strings.NewReader("1969"),
+				r: io.ReadSeeker(strings.NewReader("1969")),
 			},
 			want: "966",
 		},
 		{
 			args: args{
-				r: strings.NewReader("100756"),
+				r: io.ReadSeeker(strings.NewReader("100756")),
 			},
 			want: "50346",
 		},

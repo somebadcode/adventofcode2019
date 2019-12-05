@@ -43,7 +43,7 @@ func (m *Machine) SetInput(d0, d1 int) {
 func (m *Machine) Run() error {
 loop:
 	for {
-		switch m.fetchInstruction() {
+		switch m.memory[m.ip] {
 		case 1:
 			m.add()
 
@@ -55,8 +55,7 @@ loop:
 
 		default:
 			// Invalid instruction.
-			m.err = fmt.Errorf("invalid instruction: %d", m.fetchInstruction())
-			return m.err
+			m.err = fmt.Errorf("invalid instruction: %d", m.memory[m.ip])
 		}
 		if m.err != nil {
 			return m.err
@@ -69,41 +68,12 @@ func (m *Machine) Output() int {
 	return m.memory[0]
 }
 
-func (m *Machine) fetchInstruction() int {
-	if m.ip < len(m.memory) {
-		return m.memory[m.ip]
-	}
-	m.err = fmt.Errorf("segmentation fault, instruction pointer is out of bounds")
-	m.ip += 1
-	return 99
-}
-
 func (m *Machine) add() {
-	for p := m.ip + 1; p < m.ip+4; p++ {
-		if len(m.memory) < p || p < 0 {
-			m.err = fmt.Errorf("segmentation fault at %d", p)
-			return
-		}
-		if m.memory[p] > len(m.memory)-1 {
-			m.err = fmt.Errorf("segmentation fault at %d [%d]", p, m.memory[p])
-			return
-		}
-	}
 	m.memory[m.memory[m.ip+3]] = m.memory[m.memory[m.ip+1]] + m.memory[m.memory[m.ip+2]]
 	m.ip += 4
 }
 
 func (m *Machine) mul() {
-	for p := m.ip + 1; p < m.ip+4; p++ {
-		if len(m.memory) < p || p < 0 {
-			m.err = fmt.Errorf("segmentation fault at %d", p)
-			return
-		}
-		if m.memory[p] > len(m.memory)-1 {
-			m.err = fmt.Errorf("segmentation fault at %d [%d]", p, m.memory[p])
-			return
-		}
-	}
 	m.memory[m.memory[m.ip+3]] = m.memory[m.memory[m.ip+1]] * m.memory[m.memory[m.ip+2]]
 	m.ip += 4
 }

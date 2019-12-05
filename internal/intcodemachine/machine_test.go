@@ -1,7 +1,7 @@
 package intcodemachine
 
 import (
-	"github.com/somebadcode/adventofcode2019/pkg/badreader"
+	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
 	"io"
 	"reflect"
 	"strings"
@@ -42,6 +42,7 @@ func TestMachine_Output(t *testing.T) {
 	}
 }
 
+/*
 func TestMachine_Reset(t *testing.T) {
 	type fields struct {
 		memory []int
@@ -59,7 +60,7 @@ func TestMachine_Reset(t *testing.T) {
 	}{
 		{
 			fields: fields{
-				memory: make([]int, 100),
+				memory: []int{1,2,3,4,5,6,7,8,9,0},
 				tape:   strings.NewReader("1,2,3,4,5,6,7,8,9,0"),
 				ip:     5,
 			},
@@ -70,8 +71,18 @@ func TestMachine_Reset(t *testing.T) {
 		},
 		{
 			fields: fields{
-				memory: make([]int, 10),
-				tape:   badreader.NewBadStringReader("1,2,3,4,5,6,7,8,9,0", io.ErrShortBuffer),
+				memory: []int{1,2,3,0,1,0,0,0,99,99},
+				tape:   badreadseeker.New(strings.NewReader("1,2,3,0,1,0,0,0,99,99"), io.ErrShortBuffer, badreadseeker.Read),
+				ip:     5,
+			},
+			seek:    0,
+			wantErr: true,
+			wantIp:  0,
+		},
+		{
+			fields: fields{
+				memory: []int{1,2,3,4,5,6,7,8,9,0},
+				tape:   badreadseeker.New(strings.NewReader("1,2,3,4,5,6,7,8,9,0"), io.ErrShortBuffer, badreadseeker.Seek),
 				ip:     5,
 			},
 			seek:    0,
@@ -89,17 +100,19 @@ func TestMachine_Reset(t *testing.T) {
 			}
 			if err := m.Reset(); (err != nil) != tt.wantErr {
 				t.Errorf("Reset() error = %v, wantErr %v", err, tt.wantErr)
+				t.FailNow()
 			}
 			if got := m.ip; got != tt.wantIp {
 				t.Errorf("Reset() ip = %v, wantIp %v", got, tt.wantIp)
+				t.FailNow()
 			}
 			if got := m.Output(); got != tt.wantOutput {
-				t.Errorf("Reset() + Output() = %v, wantIp %v", got, tt.wantOutput)
+				t.Errorf("Reset() + Output() = %v, wantOutput %v", got, tt.wantOutput)
 			}
 		})
 	}
 }
-
+*/
 func TestMachine_Run(t *testing.T) {
 	type fields struct {
 		memory []int
@@ -122,34 +135,17 @@ func TestMachine_Run(t *testing.T) {
 		},
 		{
 			fields: fields{
-				memory: []int{2, 0, 0, 0, 99},
+				memory: []int{2, 1, 0, 0, 99},
 			},
 			wantErr:    false,
-			wantOutput: 4,
+			wantOutput: 2,
 		},
 		{
 			fields: fields{
-				memory: []int{32, 80, 3, 0, 99},
-				ip:     0,
+				memory: []int{5, 1, 0, 0, 99},
 			},
 			wantErr:    true,
-			wantOutput: 32,
-		},
-		{
-			fields: fields{
-				memory: []int{1, 8, 9, 0, 99},
-				ip:     0,
-			},
-			wantErr:    true,
-			wantOutput: 1,
-		},
-		{
-			fields: fields{
-				memory: []int{1, 8, 9, 0, 99},
-				ip:     0,
-			},
-			wantErr:    true,
-			wantOutput: 1,
+			wantOutput: 5,
 		},
 	}
 	for _, tt := range tests {
@@ -234,22 +230,6 @@ func TestMachine_add(t *testing.T) {
 			},
 			wantMemory: []int{3, 2, 3, 0, 99},
 		},
-		{
-			fields: fields{
-				memory: []int{2, 80, 3, 0, 99},
-				ip:     0,
-			},
-			wantMemory: []int{2, 80, 3, 0, 99},
-			wantErr:    true,
-		},
-		{
-			fields: fields{
-				memory: []int{2, 80, 3, 0, 99},
-				ip:     15,
-			},
-			wantMemory: []int{2, 80, 3, 0, 99},
-			wantErr:    true,
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -265,53 +245,6 @@ func TestMachine_add(t *testing.T) {
 			}
 			if err := m.err; (err != nil) != tt.wantErr {
 				t.Errorf("add() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
-
-func TestMachine_fetchInstruction(t *testing.T) {
-	type fields struct {
-		memory []int
-		tape   io.ReadSeeker
-		ip     int
-		err    error
-	}
-	tests := []struct {
-		name    string
-		fields  fields
-		want    int
-		wantErr bool
-	}{
-		{
-			fields: fields{
-				memory: []int{0, 1, 2, 3, 4},
-				ip:     2,
-			},
-			want: 2,
-		},
-		{
-			fields: fields{
-				memory: []int{0, 1, 2, 3, 4},
-				ip:     8,
-			},
-			want:    99,
-			wantErr: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := &Machine{
-				memory: tt.fields.memory,
-				tape:   tt.fields.tape,
-				ip:     tt.fields.ip,
-				err:    tt.fields.err,
-			}
-			if got := m.fetchInstruction(); got != tt.want {
-				t.Errorf("fetchInstruction() = %v, want %v", got, tt.want)
-			}
-			if err := m.err; (err != nil) != tt.wantErr {
-				t.Errorf("fetchInstruction() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
@@ -336,22 +269,6 @@ func TestMachine_mul(t *testing.T) {
 				ip:     0,
 			},
 			wantMemory: []int{0, 2, 3, 0, 99},
-		},
-		{
-			fields: fields{
-				memory: []int{2, 80, 3, 0, 99},
-				ip:     0,
-			},
-			wantMemory: []int{2, 80, 3, 0, 99},
-			wantErr:    true,
-		},
-		{
-			fields: fields{
-				memory: []int{2, 80, 3, 0, 99},
-				ip:     15,
-			},
-			wantMemory: []int{2, 80, 3, 0, 99},
-			wantErr:    true,
 		},
 	}
 	for _, tt := range tests {
@@ -395,7 +312,7 @@ func TestNew(t *testing.T) {
 		},
 		{
 			args: args{
-				tape: badreader.NewBadStringReader("1,2,3", io.ErrShortBuffer),
+				tape: badreadseeker.New(strings.NewReader("1,2,3"), io.ErrShortBuffer, badreadseeker.Read),
 			},
 			want: &Machine{
 				memory: nil,
@@ -416,6 +333,58 @@ func TestNew(t *testing.T) {
 				if !reflect.DeepEqual(got.memory, tt.want.memory) {
 					t.Errorf("New() memory = %v, wantErr %v", got.memory, tt.want.memory)
 				}
+			}
+		})
+	}
+}
+
+func TestMachine_Reset1(t *testing.T) {
+	type fields struct {
+		memory []int
+		tape   io.ReadSeeker
+		ip     int
+		err    error
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantErr bool
+	}{
+		{
+			fields: fields{
+				memory: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+				tape:   strings.NewReader("1,2,3,4,5,6,7,8,9,0"),
+				ip:     5,
+			},
+			wantErr: false,
+		},
+		{
+			fields: fields{
+				memory: []int{1, 2, 3, 0, 1, 0, 0, 0, 99, 99},
+				tape:   badreadseeker.New(strings.NewReader("1,2,3,0,1,0,0,0,99,99"), io.ErrShortBuffer, badreadseeker.Read),
+				ip:     5,
+			},
+			wantErr: true,
+		},
+		{
+			fields: fields{
+				memory: []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+				tape:   badreadseeker.New(strings.NewReader("1,2,3,4,5,6,7,8,9,0"), io.ErrShortBuffer, badreadseeker.Seek),
+				ip:     5,
+			},
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := &Machine{
+				memory: tt.fields.memory,
+				tape:   tt.fields.tape,
+				ip:     tt.fields.ip,
+				err:    tt.fields.err,
+			}
+			if err := m.Reset(); (err != nil) != tt.wantErr {
+				t.Errorf("Reset() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}

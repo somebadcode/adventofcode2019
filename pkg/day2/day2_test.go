@@ -1,21 +1,54 @@
 package day2
 
 import (
+	"github.com/somebadcode/adventofcode2019/internal/testdatafromfile"
+	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
+	"github.com/spf13/viper"
 	"io"
-	"strconv"
+	"reflect"
 	"strings"
 	"testing"
 )
 
-func TestPartOne(t *testing.T) {
+func TestNew(t *testing.T) {
 	type args struct {
-		r io.ReadSeeker
+		config *viper.Viper
 	}
 	tests := []struct {
 		name string
 		args args
-		want string
-		pos  int
+		want *Solver
+	}{
+		{
+			args: args{
+				config: viper.GetViper(),
+			},
+			want: &Solver{
+				config: viper.GetViper(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := New(tt.args.config); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSolver_PartOne(t *testing.T) {
+	type fields struct {
+		config *viper.Viper
+	}
+	type args struct {
+		r io.ReadSeeker
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   string
 	}{
 		{
 			args: args{
@@ -45,52 +78,166 @@ func TestPartOne(t *testing.T) {
 			args: args{
 				r: strings.NewReader("1,12,2,0,0,0,0,0,0,0,0,0,0"),
 			},
-			want: "invalid opcode: 0",
+			want: "invalid instruction: 0",
 		},
 		{
 			args: args{
-				r: strings.NewReader("1,12,2,0,1,0,0,0,1,0,0,0,1,0,0,0"),
+				r: strings.NewReader("1,12,2,0,mio,99,0,0,0,0,0,0,0,0,0,0"),
 			},
-			want: "unexpected end of program",
-		},
-		{
-			args: args{
-				r: strings.NewReader("1,12,abc"),
-			},
-			want: "strconv.Atoi: parsing \"abc\": invalid syntax",
+			want: "strconv.Atoi: parsing \"mio\": invalid syntax",
 		},
 	}
-	t.Parallel()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PartOne(tt.args.r); got != tt.want {
+			s := Solver{
+				config: tt.fields.config,
+			}
+			s.config = viper.New()
+			s.config.Set("part1.input", []int{12, 2})
+			if got := s.PartOne(tt.args.r); got != tt.want {
 				t.Errorf("PartOne() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestPartTwo(t *testing.T) {
+func TestSolver_PartTwo(t *testing.T) {
+	type fields struct {
+		config *viper.Viper
+	}
 	type args struct {
 		r io.ReadSeeker
 	}
 	tests := []struct {
-		name string
-		args args
-		want string
+		name   string
+		fields fields
+		args   args
+		input  int
+		want   string
 	}{
 		{
-			args: args{
-				r: strings.NewReader("1,2,3,0,99"),
+			fields: fields{
+				config: viper.New(),
 			},
-			want: strconv.Itoa(100*12 + 2),
+			args: args{
+				r: strings.NewReader("2,0,0,0,99,3"),
+			},
+			input: 9,
+			want:  "100 \u2715 5 + 5 = 505",
+		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: testdatafromfile.From("day2.txt"),
+			},
+			input: 1000,
+			want:  "unexpected end of part two",
+		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: badreadseeker.New(testdatafromfile.From("day2.txt"), io.ErrUnexpectedEOF, badreadseeker.Seek),
+			},
+			input: 1000,
+			want:  "unexpected EOF",
+		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: testdatafromfile.From("day2.txt"),
+			},
+			input: 19690720,
+			want:  "100 \u2715 49 + 25 = 4925",
 		},
 	}
-	t.Parallel()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PartTwo(tt.args.r); got != tt.want {
+			s := Solver{
+				config: tt.fields.config,
+			}
+			s.config.Set("part2.input", tt.input)
+			if got := s.PartTwo(tt.args.r); got != tt.want {
 				t.Errorf("PartTwo() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSolver_Solve(t *testing.T) {
+	type fields struct {
+		config *viper.Viper
+	}
+	type args struct {
+		r io.ReadSeeker
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		input1 []int
+		input2 int
+		want   []string
+	}{
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: strings.NewReader("2,0,0,0,99,3,0,0,0,0,0,0,2"),
+			},
+			input1: []int{12, 2},
+			input2: 9,
+			want:   []string{"4", "100 \u2715 5 + 5 = 505"},
+		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: badreadseeker.New(strings.NewReader("2,0,0,0,99,3,0,0,0,0,0,0,2"), io.ErrShortBuffer, badreadseeker.Read),
+			},
+			input1: []int{12, 2},
+			input2: 9,
+			want:   []string{io.ErrShortBuffer.Error(), io.ErrShortBuffer.Error()},
+		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: badreadseeker.New(strings.NewReader("2,0,0,0,99,3,0,0,0,0,0,0,2"), io.ErrShortBuffer, badreadseeker.Seek),
+			},
+			input1: []int{12, 2},
+			input2: 9,
+			want:   []string{io.ErrShortBuffer.Error(), ""},
+		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: strings.NewReader("2,0,0,0,40,3,0,0,0,0,0,0,2"),
+			},
+			input1: []int{12, 2},
+			input2: 9,
+			want:   []string{"invalid instruction: 40", "invalid instruction: 40"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Solver{
+				config: tt.fields.config,
+			}
+			s.config.Set("part1.input", tt.input1)
+			s.config.Set("part2.input", tt.input2)
+			if got := s.Solve(tt.args.r); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Solve() = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -1,0 +1,22 @@
+---
+# Files used for unit tests are stored in the ./testdata
+testdata: ./testdata
+
+# Data used when running the program are placed here.
+# By default, I've chosen to use the input that I got for the challenge,
+# which I've added as additional unit tests. Point this elsewhere for your
+# own input.
+inputdirectory: ./testdata
+
+# Some problems want you to look for something specific which could unique
+# or common for everybody but I've made som configurable to make unit tests
+# easier as well as cover the situation where it might not be the same for
+# others. You can change this.
+day2:
+  part1:
+    input:
+      - 12
+      - 2
+  part2:
+    input: 19690720
+...

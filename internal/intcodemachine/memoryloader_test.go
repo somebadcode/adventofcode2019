@@ -1,11 +1,11 @@
 package intcodemachine
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/somebadcode/adventofcode2019/pkg/badreader"
+	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
 	"io"
 	"math"
-	"reflect"
 	"strings"
 	"testing"
 )
@@ -57,9 +57,9 @@ func Test_scanInstructions(t *testing.T) {
 			args: args{
 				data: []byte{0x77},
 			},
-			wantAdvance: 1,
+			wantAdvance: 0,
 			wantToken:   []byte{},
-			wantErr:     true,
+			wantErr:     false,
 		},
 		{
 			args: args{
@@ -75,12 +75,11 @@ func Test_scanInstructions(t *testing.T) {
 			gotAdvance, gotToken, err := scanInstructions(tt.args.data, tt.args.atEOF)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("scanInstructions() error = %v, wantErr %v", err, tt.wantErr)
-				return
 			}
 			if gotAdvance != tt.wantAdvance {
 				t.Errorf("scanInstructions() gotAdvance = %v, want %v", gotAdvance, tt.wantAdvance)
 			}
-			if !reflect.DeepEqual(gotToken, tt.wantToken) {
+			if !bytes.Equal(gotToken, tt.wantToken) {
 				t.Errorf("scanInstructions() gotToken = %v, want %v", gotToken, tt.wantToken)
 			}
 		})
@@ -119,7 +118,13 @@ func TestMachine_LoadProgram(t *testing.T) {
 		},
 		{
 			fields: fields{
-				tape: badreader.NewBadStringReader("0,1,2,3,99", io.ErrShortBuffer),
+				tape: badreadseeker.New(strings.NewReader("0,1,2,3,99"), io.ErrShortBuffer, badreadseeker.Read),
+			},
+			wantErr: true,
+		},
+		{
+			fields: fields{
+				tape: bytes.NewReader([]byte{}),
 			},
 			wantErr: true,
 		},

@@ -1,19 +1,30 @@
 package main
 
 import (
-	"flag"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 )
 
+var config *viper.Viper
+
 func main() {
-	logger := log.New(os.Stderr, "", 0)
-	flag.Parse()
-	if flag.NArg() != 1 {
-		logger.Fatalln("Please specify the directory where the input files (day1.txt, day2.txt etc)")
+	logger := log.New(os.Stdout, "", 0)
+	config = viper.New()
+
+	config.SetDefault("testdata", "testdata")
+	config.SetDefault("inputdirectory", "inputdirectory")
+
+	config.AddConfigPath("./configs")
+	config.AddConfigPath(".")
+	config.SetConfigName("config")
+	config.AutomaticEnv()
+	err := config.ReadInConfig()
+	if err != nil {
+		logger.Fatalln(err)
 	}
 
-	err := solve(flag.Arg(0), logger)
+	err = solve(config.GetString("inputdirectory"), config, logger)
 	if err != nil {
 		os.Exit(1)
 	}

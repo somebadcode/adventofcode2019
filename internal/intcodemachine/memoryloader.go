@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"fmt"
 	"strconv"
-	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -27,8 +26,6 @@ func scanInstructions(data []byte, atEOF bool) (advance int, token []byte, err e
 		r, width = utf8.DecodeRune(data[i:])
 		if r == ',' {
 			return i + width, data[start:i], nil
-		} else if !strings.ContainsRune("0123456789", r) {
-			return i + width, data[start:i], fmt.Errorf("invalid character: '%c'", r)
 		}
 	}
 	// If we are at EOF then return what we have.

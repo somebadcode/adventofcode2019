@@ -2,14 +2,38 @@ package day1
 
 import (
 	"bufio"
+	"github.com/somebadcode/adventofcode2019/internal/solver"
+	"github.com/spf13/viper"
 	"io"
 	"strconv"
 )
 
-func PartOne(r io.Reader) string {
+type Solver struct {
+	config *viper.Viper
+}
+
+func New(config *viper.Viper) solver.Solver {
+	return &Solver{
+		config: config,
+	}
+}
+
+func (s *Solver) Solve(r io.ReadSeeker) []string {
+	solution := s.PartOne(r)
+
+	_, err := r.Seek(0, io.SeekStart)
+	if err != nil {
+		return []string{err.Error(), ""}
+	}
+
+	return []string{solution, s.PartTwo(r)}
+}
+
+func (s Solver) PartOne(r io.ReadSeeker) string {
 	var fuelQuantity int64
 
 	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
 		if err := scanner.Err(); err != nil {
@@ -27,10 +51,11 @@ func PartOne(r io.Reader) string {
 	return strconv.FormatInt(fuelQuantity, 10)
 }
 
-func PartTwo(r io.Reader) string {
+func (s Solver) PartTwo(r io.ReadSeeker) string {
 	var fuelQuantity int64
 
 	scanner := bufio.NewScanner(r)
+	scanner.Split(bufio.ScanLines)
 
 	for scanner.Scan() {
 		var totalFuelRequirement int64

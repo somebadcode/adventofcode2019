@@ -1,20 +1,53 @@
 package day1
 
 import (
-	"github.com/somebadcode/adventofcode2019/pkg/badreader"
+	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
+	"github.com/spf13/viper"
 	"io"
+	"reflect"
 	"strings"
 	"testing"
 )
 
-func TestPartOne(t *testing.T) {
+func TestNew(t *testing.T) {
 	type args struct {
-		r io.Reader
+		config *viper.Viper
 	}
 	tests := []struct {
 		name string
 		args args
-		want string
+		want *Solver
+	}{
+		{
+			args: args{
+				config: viper.GetViper(),
+			},
+			want: &Solver{
+				config: viper.GetViper(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := New(tt.args.config); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("New() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSolver_PartOne(t *testing.T) {
+	type fields struct {
+		config *viper.Viper
+	}
+	type args struct {
+		r io.ReadSeeker
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   string
 	}{
 		{
 			args: args{
@@ -24,7 +57,7 @@ func TestPartOne(t *testing.T) {
 		},
 		{
 			args: args{
-				r: badreader.NewBadStringReader("666", io.ErrUnexpectedEOF),
+				r: badreadseeker.New(strings.NewReader("666"), io.ErrUnexpectedEOF, badreadseeker.Read),
 			},
 			want: io.ErrUnexpectedEOF.Error(),
 		},
@@ -53,24 +86,30 @@ func TestPartOne(t *testing.T) {
 			want: "33583",
 		},
 	}
-	t.Parallel()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PartOne(tt.args.r); got != tt.want {
+			s := Solver{
+				config: tt.fields.config,
+			}
+			if got := s.PartOne(tt.args.r); got != tt.want {
 				t.Errorf("PartOne() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func TestPartTwo(t *testing.T) {
+func TestSolver_PartTwo(t *testing.T) {
+	type fields struct {
+		config *viper.Viper
+	}
 	type args struct {
-		r io.Reader
+		r io.ReadSeeker
 	}
 	tests := []struct {
-		name string
-		args args
-		want string
+		name   string
+		fields fields
+		args   args
+		want   string
 	}{
 		{
 			args: args{
@@ -80,7 +119,7 @@ func TestPartTwo(t *testing.T) {
 		},
 		{
 			args: args{
-				r: badreader.NewBadStringReader("666", io.ErrUnexpectedEOF),
+				r: badreadseeker.New(strings.NewReader("666"), io.ErrUnexpectedEOF, badreadseeker.Read),
 			},
 			want: io.ErrUnexpectedEOF.Error(),
 		},
@@ -103,11 +142,51 @@ func TestPartTwo(t *testing.T) {
 			want: "50346",
 		},
 	}
-	t.Parallel()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PartTwo(tt.args.r); got != tt.want {
+			s := Solver{
+				config: tt.fields.config,
+			}
+			if got := s.PartTwo(tt.args.r); got != tt.want {
 				t.Errorf("PartTwo() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSolver_Solve(t *testing.T) {
+	type fields struct {
+		config *viper.Viper
+	}
+	type args struct {
+		r io.ReadSeeker
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   []string
+	}{
+		{
+			args: args{
+				r: strings.NewReader("100756"),
+			},
+			want: []string{"33583", "50346"},
+		},
+		{
+			args: args{
+				r: badreadseeker.New(strings.NewReader("100756"), io.ErrShortBuffer, badreadseeker.Seek),
+			},
+			want: []string{io.ErrShortBuffer.Error(), ""},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			s := &Solver{
+				config: tt.fields.config,
+			}
+			if got := s.Solve(tt.args.r); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Solve() = %v, want %v", got, tt.want)
 			}
 		})
 	}

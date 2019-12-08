@@ -10,8 +10,12 @@ import (
 	"unicode/utf8"
 )
 
-type Line struct {
-	x0, x1, y0, y1 int64
+type Point struct {
+	X, Y int64
+}
+
+type Vector struct {
+	P, Q Point
 }
 
 type direction uint8
@@ -29,15 +33,15 @@ var (
 	ErrInvalidMagnitude = errors.New("invalid magnitude")
 )
 
-func Parse(r io.Reader) ([]Line, error) {
-	var lines []Line
+func Parse(r io.Reader) ([]Vector, error) {
+	var vectors []Vector
 
 	scanner := bufio.NewScanner(r)
 	scanner.Split(scanVectors)
 
 	for scanner.Scan() {
 		if err := scanner.Err(); err != nil {
-			return lines, err
+			return nil, err
 		}
 
 		// Convert token to upper case for easier comparison
@@ -45,58 +49,49 @@ func Parse(r io.Reader) ([]Line, error) {
 
 		// Get prefix (direction).
 		prefix, width := utf8.DecodeRuneInString(token)
-		if prefix == utf8.RuneError {
-			return lines, ErrInvalidDirection
-		}
 
 		// Decode direction from the prefix.
 		direction, err := getDirection(prefix)
 		if err != nil {
-			return lines, ErrInvalidDirection
+			return nil, ErrInvalidDirection
 		}
 
 		// Parse magnitude from what remains of the token..
 		magnitude, err := strconv.ParseInt(token[width:], 10, 64)
 		if err != nil {
-			return lines, ErrInvalidMagnitude
+			return nil, ErrInvalidMagnitude
 		}
 
-		if len(lines) == 0 {
-			// First vector, append to empty slice.
-			vector := attachVector(Line{}, direction, magnitude)
-			lines = append(lines, vector)
-		} else {
-			// If slice is not empty then join the last vector with the new vector
-			// to form the next vector.
-			lines = append(lines, attachVector(lines[len(lines)-1], direction, magnitude))
+		// If there are no vectors, simply put the first one into the slice.
+		if len(vectors) == 0 {
+			vectors = []Vector{attachVector(Vector{}, direction, magnitude)}
+			continue
 		}
+
+		// Append the vector to the last vector.
+		vectors = append(vectors, attachVector(vectors[len(vectors)-1], direction, magnitude))
 	}
 
-	return lines, nil
+	return vectors, nil
 }
 
-func attachVector(line Line, d direction, m int64) Line {
-    newLine := Line{
-    	x0: line.x1,
-    	x1: line.x1,
-    	y0: line.y1,
-    	y1: line.y1,
-	}
+func attachVector(vector Vector, d direction, m int64) Vector {
+	v := Vector{P: vector.Q, Q: vector.Q}
 	switch d {
 	case Left:
-		newLine.x1 -= m
+		v.Q.X -= m
 	case Right:
-		newLine.x1 += m
+		v.Q.X += m
 	case Up:
-		newLine.y1 += m
+		v.Q.Y += m
 	case Down:
-		newLine.y1 -= m
+		v.Q.Y -= m
 	}
-	return newLine
+	return v
 }
 
-func ManhattanDistance(l1, l2 Line) int64 {
-	return abs(l1.x1 - l2.x1) + abs(l1.y1 - l2.y1)
+func ManhattanDistance(v1, v2 Vector) int64 {
+	return abs(v1.Q.X-v2.Q.X) + abs(v1.Q.Y-v2.Q.Y)
 	// |x1 - x2| + |y1 - y2|
 }
 

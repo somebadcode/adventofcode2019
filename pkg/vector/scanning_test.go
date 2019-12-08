@@ -1,8 +1,10 @@
 package vector
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
+	"unicode/utf8"
 )
 
 func Test_scanVectors(t *testing.T) {
@@ -43,11 +45,30 @@ func Test_scanVectors(t *testing.T) {
 			wantToken:   nil,
 			wantErr:     false,
 		},
+		{
+			args: args{
+				data:  []byte(fmt.Sprintf("%c", 0xFF0F000D)),
+				atEOF: false,
+			},
+			wantAdvance: 0,
+			wantToken:   []byte(string(utf8.RuneError)),
+			wantErr:     true,
+		},
+		{
+			args: args{
+				data:  []byte(fmt.Sprintf("U2%c,L3", 0xD800)),
+				atEOF: false,
+			},
+			wantAdvance: 0,
+			wantToken:   []byte(string(utf8.RuneError)),
+			wantErr:     true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			gotAdvance, gotToken, err := scanVectors(tt.args.data, tt.args.atEOF)
 			if (err != nil) != tt.wantErr {
+				fmt.Println(tt.wantToken)
 				t.Errorf("scanVectors() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}

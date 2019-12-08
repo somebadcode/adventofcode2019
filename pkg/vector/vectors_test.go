@@ -1,6 +1,7 @@
 package vector
 
 import (
+	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
 	"io"
 	"reflect"
 	"strings"
@@ -14,7 +15,7 @@ func TestParse(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    []Line
+		want    []Vector
 		wantErr bool
 	}{
 		{
@@ -22,61 +23,16 @@ func TestParse(t *testing.T) {
 				r: strings.NewReader("R75,D30,R83,U83,L12,D49,R71,U7,L72"),
 			},
 			wantErr: false,
-			want: []Line{
-				{
-					x0: 0,
-					x1: 75,
-					y0: 0,
-					y1: 0,
-				},
-				{
-					x0: 75,
-					x1: 75,
-					y0: 0,
-					y1: -30,
-				},
-				{
-					x0: 75,
-					x1: 158,
-					y0: -30,
-					y1: -30,
-				},
-				{
-					x0: 158,
-					x1: 158,
-					y0: -30,
-					y1: 53,
-				},
-				{
-					x0: 158,
-					x1: 146,
-					y0: 53,
-					y1: 53,
-				},
-				{
-					x0: 146,
-					x1: 146,
-					y0: 53,
-					y1: 4,
-				},
-				{
-					x0: 146,
-					x1: 217,
-					y0: 4,
-					y1: 4,
-				},
-				{
-					x0: 217,
-					x1: 217,
-					y0: 4,
-					y1: 11,
-				},
-				{
-					x0: 217,
-					x1: 145,
-					y0: 11,
-					y1: 11,
-				},
+			want: []Vector{
+				{P: Point{0, 0}, Q: Point{75, 0}},
+				{P: Point{75, 0}, Q: Point{75, -30}},
+				{P: Point{75, -30}, Q: Point{158, -30}},
+				{P: Point{158, -30}, Q: Point{158, 53}},
+				{P: Point{158, 53}, Q: Point{146, 53}},
+				{P: Point{146, 53}, Q: Point{146, 4}},
+				{P: Point{146, 4}, Q: Point{217, 4}},
+				{P: Point{217, 4}, Q: Point{217, 11}},
+				{P: Point{217, 11}, Q: Point{145, 11}},
 			},
 		},
 		{
@@ -84,55 +40,15 @@ func TestParse(t *testing.T) {
 				r: strings.NewReader("U62,R66,U55,R34,D71,R55,D58,R83"),
 			},
 			wantErr: false,
-			want: []Line{
-				{
-					x0: 0,
-					x1: 0,
-					y0: 0,
-					y1: 62,
-				},
-				{
-					x0: 0,
-					x1: 66,
-					y0: 62,
-					y1: 62,
-				},
-				{
-					x0: 66,
-					x1: 66,
-					y0: 62,
-					y1: 117,
-				},
-				{
-					x0: 66,
-					x1: 100,
-					y0: 117,
-					y1: 117,
-				},
-				{
-					x0: 100,
-					x1: 100,
-					y0: 117,
-					y1: 46,
-				},
-				{
-					x0: 100,
-					x1: 155,
-					y0: 46,
-					y1: 46,
-				},
-				{
-					x0: 155,
-					x1: 155,
-					y0: 46,
-					y1: -12,
-				},
-				{
-					x0: 155,
-					x1: 238,
-					y0: -12,
-					y1: -12,
-				},
+			want: []Vector{
+				{P: Point{0, 0}, Q: Point{0, 62}},
+				{P: Point{0, 62}, Q: Point{66, 62}},
+				{P: Point{66, 62}, Q: Point{66, 117}},
+				{P: Point{66, 117}, Q: Point{100, 117}},
+				{P: Point{100, 117}, Q: Point{100, 46}},
+				{P: Point{100, 46}, Q: Point{155, 46}},
+				{P: Point{155, 46}, Q: Point{155, -12}},
+				{P: Point{155, -12}, Q: Point{238, -12}},
 			},
 		},
 		{
@@ -140,141 +56,54 @@ func TestParse(t *testing.T) {
 				r: strings.NewReader("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
 			},
 			wantErr: false,
-			want: []Line{
-				{
-					x0: 0,
-					x1: 98,
-					y0: 0,
-					y1: 0,
-				},
-				{
-					x0: 98,
-					x1: 98,
-					y0: 0,
-					y1: 47,
-				},
-				{
-					x0: 98,
-					x1: 124,
-					y0: 47,
-					y1: 47,
-				},
-				{
-					x0: 124,
-					x1: 124,
-					y0: 47,
-					y1: -16,
-				},
-				{
-					x0: 124,
-					x1: 157,
-					y0: -16,
-					y1: -16,
-				},
-				{
-					x0: 157,
-					x1: 157,
-					y0: -16,
-					y1: 71,
-				},
-				{
-					x0: 157,
-					x1: 95,
-					y0: 71,
-					y1: 71,
-				},
-				{
-					x0: 95,
-					x1: 95,
-					y0: 71,
-					y1: 51,
-				},
-				{
-					x0: 95,
-					x1: 128,
-					y0: 51,
-					y1: 51,
-				},
-				{
-					x0: 128,
-					x1: 128,
-					y0: 51,
-					y1: 104,
-				},
-				{
-					x0: 128,
-					x1: 179,
-					y0: 104,
-					y1: 104,
-				},
+			want: []Vector{
+				{P: Point{0, 0}, Q: Point{98, 0}},
+				{P: Point{98, 0}, Q: Point{98, 47}},
+				{P: Point{98, 47}, Q: Point{124, 47}},
+				{P: Point{124, 47}, Q: Point{124, -16}},
+				{P: Point{124, -16}, Q: Point{157, -16}},
+				{P: Point{157, -16}, Q: Point{157, 71}},
+				{P: Point{157, 71}, Q: Point{95, 71}},
+				{P: Point{95, 71}, Q: Point{95, 51}},
+				{P: Point{95, 51}, Q: Point{128, 51}},
+				{P: Point{128, 51}, Q: Point{128, 104}},
+				{P: Point{128, 104}, Q: Point{179, 104}},
 			},
 		},
 		{
 			args: args{
 				r: strings.NewReader("U98,R91,D20,R16,D67,R40,U7,R15,U6,R7"),
 			},
-			want: []Line{
-				{
-					x0: 0,
-					x1: 0,
-					y0: 0,
-					y1: 98,
-				},
-				{
-					x0: 0,
-					x1: 91,
-					y0: 98,
-					y1: 98,
-				},
-				{
-					x0: 91,
-					x1: 91,
-					y0: 98,
-					y1: 78,
-				},
-				{
-					x0: 91,
-					x1: 107,
-					y0: 78,
-					y1: 78,
-				},
-				{
-					x0: 107,
-					x1: 107,
-					y0: 78,
-					y1: 11,
-				},
-				{
-					x0: 107,
-					x1: 147,
-					y0: 11,
-					y1: 11,
-				},
-				{
-					x0: 147,
-					x1: 147,
-					y0: 11,
-					y1: 18,
-				},
-				{
-					x0: 147,
-					x1: 162,
-					y0: 18,
-					y1: 18,
-				},
-				{
-					x0: 162,
-					x1: 162,
-					y0: 18,
-					y1: 24,
-				},
-				{
-					x0: 162,
-					x1: 169,
-					y0: 24,
-					y1: 24,
-				},
+			want: []Vector{
+				{P: Point{0, 0}, Q: Point{0, 98}},
+				{P: Point{0, 98}, Q: Point{91, 98}},
+				{P: Point{91, 98}, Q: Point{91, 78}},
+				{P: Point{91, 78}, Q: Point{107, 78}},
+				{P: Point{107, 78}, Q: Point{107, 11}},
+				{P: Point{107, 11}, Q: Point{147, 11}},
+				{P: Point{147, 11}, Q: Point{147, 18}},
+				{P: Point{147, 18}, Q: Point{162, 18}},
+				{P: Point{162, 18}, Q: Point{162, 24}},
+				{P: Point{162, 24}, Q: Point{169, 24}},
 			},
+		},
+		{
+			args: args{
+				r: badreadseeker.New(strings.NewReader("L20,U90"), io.ErrUnexpectedEOF, badreadseeker.Read),
+			},
+			wantErr: true,
+		},
+		{
+			args: args{
+				r: strings.NewReader("V300,U90"),
+			},
+			wantErr: true,
+		},
+		{
+			args: args{
+				r: strings.NewReader("R30m,U90"),
+			},
+			wantErr: true,
 		},
 	}
 	for _, tt := range tests {
@@ -358,50 +187,30 @@ func Test_getDirection(t *testing.T) {
 
 func Test_attachVector(t *testing.T) {
 	type args struct {
-		v Line
+		v Vector
 		d direction
 		m int64
 	}
 	tests := []struct {
 		name string
 		args args
-		want Line
+		want Vector
 	}{
 		{
 			args: args{
-				v: Line{
-					x0: 0,
-					x1: 10,
-					y0: 0,
-					y1: 0,
-				},
+				v: Vector{P: Point{0, 0}, Q: Point{10, 0}},
 				d: Right,
 				m: 10,
 			},
-			want: Line{
-				x0: 10,
-				x1: 20,
-				y0: 0,
-				y1: 0,
-			},
+			want: Vector{P: Point{10, 0}, Q: Point{20, 0}},
 		},
 		{
 			args: args{
-				v: Line{
-					x0: 5,
-					x1: 20,
-					y0: -10,
-					y1: 5,
-				},
+				v: Vector{P: Point{5, -10}, Q: Point{20, 5}},
 				d: Up,
 				m: 50,
 			},
-			want: Line{
-				x0: 20,
-				x1: 20,
-				y0: 5,
-				y1: 55,
-			},
+			want: Vector{P: Point{20, 5}, Q: Point{20, 55}},
 		},
 	}
 	for _, tt := range tests {
@@ -415,8 +224,8 @@ func Test_attachVector(t *testing.T) {
 
 func TestManhattanDistance(t *testing.T) {
 	type args struct {
-		l1 Line
-		l2 Line
+		v1 Vector
+		v2 Vector
 	}
 	tests := []struct {
 		name string
@@ -425,20 +234,15 @@ func TestManhattanDistance(t *testing.T) {
 	}{
 		{
 			args: args{
-				l1: Line{},
-				l2: Line{
-					x0: 10,
-					x1: 20,
-					y0: 30,
-					y1: 50,
-				},
+				v1: Vector{P: Point{0, 0}, Q: Point{0, 0}},
+				v2: Vector{P: Point{10, 30}, Q: Point{20, 50}},
 			},
 			want: 70,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := ManhattanDistance(tt.args.l1, tt.args.l2); got != tt.want {
+			if got := ManhattanDistance(tt.args.v1, tt.args.v2); got != tt.want {
 				t.Errorf("ManhattanDistance() = %v, want %v", got, tt.want)
 			}
 		})

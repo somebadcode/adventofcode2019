@@ -2,8 +2,13 @@ package vector
 
 import (
 	"bytes"
+	"errors"
 	"unicode"
 	"unicode/utf8"
+)
+
+var (
+	ErrInvalidRune = errors.New("invalid rune")
 )
 
 func scanVectors(data []byte, atEOF bool) (advance int, token []byte, err error) {
@@ -12,16 +17,19 @@ func scanVectors(data []byte, atEOF bool) (advance int, token []byte, err error)
 	for width := 0; start < len(data); start += width {
 		var r rune
 		r, width = utf8.DecodeRune(data[start:])
-		if r != ',' {
+		if r == utf8.RuneError {
+			return 0, []byte(string(utf8.RuneError)), ErrInvalidRune
+		} else if r != ',' {
 			break
 		}
 	}
-	// We're not at a comma so we need to see where the next comma is.
-	// Find next comma.
+	// Consume runes up to the next comma.
 	for width, i := 0, start; i < len(data); i += width {
 		var r rune
 		r, width = utf8.DecodeRune(data[i:])
-		if r == ',' {
+		if r == utf8.RuneError {
+			return 0, []byte(string(utf8.RuneError)), ErrInvalidRune
+		} else if r == ',' {
 			return i + width, data[start:i], nil
 		}
 	}

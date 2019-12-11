@@ -102,7 +102,7 @@ func (s *Solver) PartTwo(r io.ReadSeeker) string {
 		}
 	}
 
-	for p, _ := range intersections {
+	for p := range intersections {
 		for _, wire := range wires {
 			for _, w := range wire {
 				if vector.IsInSegment(p, w, 0.01) {

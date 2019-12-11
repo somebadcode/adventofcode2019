@@ -1,6 +1,7 @@
 package day1
 
 import (
+	"github.com/somebadcode/adventofcode2019/internal/testdatafromfile"
 	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
 	"github.com/spf13/viper"
 	"io"
@@ -178,6 +179,12 @@ func TestSolver_Solve(t *testing.T) {
 				r: badreadseeker.New(strings.NewReader("100756"), io.ErrShortBuffer, badreadseeker.Seek),
 			},
 			want: []string{io.ErrShortBuffer.Error(), ""},
+		},
+		{
+			args: args{
+				r: testdatafromfile.From("day1.txt"),
+			},
+			want: []string{"3167282", "4748063"},
 		},
 	}
 	for _, tt := range tests {

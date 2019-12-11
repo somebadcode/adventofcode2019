@@ -169,12 +169,6 @@ func TestSolver_Solve(t *testing.T) {
 			},
 			want: []string{io.ErrUnexpectedEOF.Error(),io.ErrUnexpectedEOF.Error()},
 		},
-		{
-			args: args{
-				r: badreadseeker.New(strings.NewReader("L90,U40"), io.ErrUnexpectedEOF,badreadseeker.Read),
-			},
-			want: []string{io.ErrUnexpectedEOF.Error(),io.ErrUnexpectedEOF.Error()},
-		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

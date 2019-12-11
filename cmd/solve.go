@@ -5,6 +5,7 @@ import (
 	"github.com/somebadcode/adventofcode2019/internal/solver"
 	"github.com/somebadcode/adventofcode2019/pkg/day1"
 	"github.com/somebadcode/adventofcode2019/pkg/day2"
+	"github.com/somebadcode/adventofcode2019/pkg/day3"
 	"github.com/spf13/viper"
 	"log"
 	"os"
@@ -18,6 +19,7 @@ func solve(path string, config *viper.Viper, logger *log.Logger) error {
 	solvers := []solver.Solver{
 		day1.New(config.Sub("day1")),
 		day2.New(config.Sub("day2")),
+		day3.New(config.Sub("day3")),
 	}
 
 	for i, s := range solvers {

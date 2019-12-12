@@ -86,7 +86,7 @@ func (s *Solver) PartTwo(r io.ReadSeeker) string {
 		wires = append(wires, wire)
 	}
 
-	if len(wires) != 2 {
+	if wires == nil || len(wires) != 2 {
 		return "expected 2 wires"
 	}
 

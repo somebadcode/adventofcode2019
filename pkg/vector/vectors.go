@@ -163,7 +163,7 @@ func IsInSegment(p Point, v Vector, epsilon float64) bool {
 	}
 
 	squaredLength := (v.Q.X-v.P.X)*(v.Q.X-v.P.X) + (v.Q.Y-v.P.Y)*(v.Q.Y-v.P.Y)
-	return squaredLength > dotProduct
+	return squaredLength >= dotProduct
 }
 
 func Distance(p1, p2 Point) float64 {

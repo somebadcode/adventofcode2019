@@ -23,9 +23,9 @@ func TestNew(t *testing.T) {
 		{
 			args: args{
 				config: viper.GetViper(),
-			}	,
+			},
 			want: &Solver{
-					config: viper.GetViper(),
+				config: viper.GetViper(),
 			},
 		},
 	}
@@ -149,25 +149,25 @@ func TestSolver_Solve(t *testing.T) {
 			args: args{
 				r: strings.NewReader("R75,D30,R83,U83,L12,D49,R71,U7,L72\nU62,R66,U55,R34,D71,R55,D58,R83"),
 			},
-			want: []string{"159","610"},
+			want: []string{"159", "610"},
 		},
 		{
 			args: args{
 				r: strings.NewReader("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51\nU98,R91,D20,R16,D67,R40,U7,R15,U6,R7"),
 			},
-			want: []string{"135","410"},
+			want: []string{"135", "410"},
 		},
 		{
 			args: args{
 				r: testdatafromfile.From("day3.txt"),
 			},
-			want: []string{"1431","48012"},
+			want: []string{"1431", "48012"},
 		},
 		{
 			args: args{
-				r: badreadseeker.New(strings.NewReader("L90,U40"), io.ErrUnexpectedEOF,badreadseeker.Read),
+				r: badreadseeker.New(strings.NewReader("L90,U40"), io.ErrUnexpectedEOF, badreadseeker.Read),
 			},
-			want: []string{io.ErrUnexpectedEOF.Error(),io.ErrUnexpectedEOF.Error()},
+			want: []string{io.ErrUnexpectedEOF.Error(), io.ErrUnexpectedEOF.Error()},
 		},
 	}
 	for _, tt := range tests {

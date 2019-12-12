@@ -350,7 +350,7 @@ func Test_GetIntersection(t *testing.T) {
 				v1: Vector{P: Point{0, 0}, Q: Point{100, 0}, D: Right, M: 100},
 				v2: Vector{P: Point{50, 50}, Q: Point{50, -50}, D: Down, M: 100},
 			},
-			want: &Point{50,0},
+			want: &Point{50, 0},
 		},
 	}
 	for _, tt := range tests {
@@ -374,7 +374,7 @@ func TestDistance(t *testing.T) {
 	}{
 		{
 			args: args{
-				p1: Point{0,3},
+				p1: Point{0, 3},
 				p2: Point{0, 9},
 			},
 			want: 6,
@@ -402,21 +402,21 @@ func Test_IsInSegment(t *testing.T) {
 	}{
 		{
 			args: args{
-				p: Point{10,10},
+				p: Point{10, 10},
 				v: Vector{P: Point{10, 0}, Q: Point{10, 30}, D: Up, M: 30},
 			},
 			want: true,
 		},
 		{
 			args: args{
-				p: Point{10,10},
+				p: Point{10, 10},
 				v: Vector{P: Point{0, 0}, Q: Point{0, 20}, D: Up, M: 20},
 			},
 			want: false,
 		},
 		{
 			args: args{
-				p: Point{10,10},
+				p: Point{10, 10},
 				v: Vector{P: Point{-200, 5}, Q: Point{200, 9}},
 			},
 			want: false,

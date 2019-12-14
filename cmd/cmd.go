@@ -10,16 +10,8 @@ var config *viper.Viper
 
 func main() {
 	logger := log.New(os.Stdout, "", 0)
-	config = viper.New()
 
-	config.SetDefault("testdata", "testdata")
-	config.SetDefault("inputdirectory", "inputdirectory")
-
-	config.AddConfigPath("./configs")
-	config.AddConfigPath(".")
-	config.SetConfigName("config")
-	config.AutomaticEnv()
-	err := config.ReadInConfig()
+	config, err := getConfig()
 	if err != nil {
 		logger.Fatalln(err)
 	}

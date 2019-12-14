@@ -43,7 +43,6 @@ func solve(path string, config *viper.Viper, logger *log.Logger) error {
 
 			logger.Printf("Day %d\tPart 1: %s\n\tPart 2: %s\n", day, results[0], results[1])
 		}(s, i+1, file)
-
 	}
 
 	wg.Wait()

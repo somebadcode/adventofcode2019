@@ -127,14 +127,7 @@ func GetIntersection(v1, v2 Vector) *Point {
 }
 
 func ManhattanDistance(p1, p2 Point) float64 {
-	return abs(p1.X-p2.X) + abs(p1.Y-p2.Y)
-}
-
-func abs(x float64) float64 {
-	if x < 0 {
-		return -x
-	}
-	return x
+	return math.Abs(p1.X-p2.X) + math.Abs(p1.Y-p2.Y)
 }
 
 func getDirection(direction rune) (Angle, error) {

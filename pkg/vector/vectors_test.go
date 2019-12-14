@@ -255,37 +255,6 @@ func TestManhattanDistance(t *testing.T) {
 	}
 }
 
-func Test_abs(t *testing.T) {
-	type args struct {
-		x float64
-	}
-	tests := []struct {
-		name string
-		args args
-		want float64
-	}{
-		{
-			args: args{
-				x: 200,
-			},
-			want: 200,
-		},
-		{
-			args: args{
-				x: -36871,
-			},
-			want: 36871,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := abs(tt.args.x); got != tt.want {
-				t.Errorf("abs() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_GetIntersection(t *testing.T) {
 	type args struct {
 		v1 Vector
@@ -418,6 +387,13 @@ func Test_IsInSegment(t *testing.T) {
 			args: args{
 				p: Point{10, 10},
 				v: Vector{P: Point{-200, 5}, Q: Point{200, 9}},
+			},
+			want: false,
+		},
+		{
+			args: args{
+				p: Point{-50, 50},
+				v: Vector{P: Point{50, -50}, Q: Point{100, -100}},
 			},
 			want: false,
 		},

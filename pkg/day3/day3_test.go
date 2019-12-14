@@ -4,6 +4,7 @@ import (
 	"github.com/somebadcode/adventofcode2019/internal/solver"
 	"github.com/somebadcode/adventofcode2019/internal/testdatafromfile"
 	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
+	"github.com/somebadcode/adventofcode2019/pkg/vector"
 	"github.com/spf13/viper"
 	"io"
 	"reflect"
@@ -75,6 +76,18 @@ func TestSolver_PartOne(t *testing.T) {
 			},
 			want: "expected 2 wires",
 		},
+		{
+			args: args{
+				r: badreadseeker.New(strings.NewReader("U87,R51"), io.ErrShortBuffer, badreadseeker.Read),
+			},
+			want: io.ErrShortBuffer.Error(),
+		},
+		{
+			args: args{
+				r: strings.NewReader("F87,R51"),
+			},
+			want: vector.ErrInvalidDirection.Error(),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -118,6 +131,12 @@ func TestSolver_PartTwo(t *testing.T) {
 				r: strings.NewReader("R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51"),
 			},
 			want: "expected 2 wires",
+		},
+		{
+			args: args{
+				r: strings.NewReader("F87,R51"),
+			},
+			want: vector.ErrInvalidDirection.Error(),
 		},
 	}
 	for _, tt := range tests {
@@ -168,6 +187,18 @@ func TestSolver_Solve(t *testing.T) {
 				r: badreadseeker.New(strings.NewReader("L90,U40"), io.ErrUnexpectedEOF, badreadseeker.Read),
 			},
 			want: []string{io.ErrUnexpectedEOF.Error(), io.ErrUnexpectedEOF.Error()},
+		},
+		{
+			args: args{
+				r: badreadseeker.New(strings.NewReader("L90,U40"), io.ErrUnexpectedEOF, badreadseeker.Seek),
+			},
+			want: []string{io.ErrUnexpectedEOF.Error(), ""},
+		},
+		{
+			args: args{
+				r: strings.NewReader("F87,R51"),
+			},
+			want: []string{vector.ErrInvalidDirection.Error(), vector.ErrInvalidDirection.Error()},
 		},
 	}
 	for _, tt := range tests {

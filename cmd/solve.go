@@ -8,6 +8,7 @@ import (
 	"github.com/somebadcode/adventofcode2019/pkg/day3"
 	"github.com/somebadcode/adventofcode2019/pkg/day4"
 	"github.com/spf13/viper"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -17,7 +18,7 @@ import (
 func solve(path string, config *viper.Viper, logger *log.Logger) error {
 	wg := sync.WaitGroup{}
 
-	solvers := []solver.Solver{
+	solvers := []solver.Parts{
 		day1.New(config.Sub("day1")),
 		day2.New(config.Sub("day2")),
 		day3.New(config.Sub("day3")),
@@ -31,7 +32,7 @@ func solve(path string, config *viper.Viper, logger *log.Logger) error {
 		}
 
 		wg.Add(1)
-		go func(s solver.Solver, day int, f *os.File) {
+		go func(s solver.Parts, day int, f *os.File) {
 
 			defer wg.Done()
 			defer func() {
@@ -39,9 +40,15 @@ func solve(path string, config *viper.Viper, logger *log.Logger) error {
 					fmt.Println(err)
 				}
 			}()
-			results := s.Solve(f)
+			p1 := s.PartOne(f)
+			_, err := f.Seek(0, io.SeekStart)
+			if err != nil {
+				logger.Printf("Day %d\tError: %s\n", day, err)
+				return
+			}
+			p2 := s.PartTwo(f)
 
-			logger.Printf("Day %d\tPart 1: %s\n\tPart 2: %s\n", day, results[0], results[1])
+			logger.Printf("Day %d\tPart 1: %s\n\tPart 2: %s\n", day, p1, p2)
 		}(s, i+1, file)
 	}
 

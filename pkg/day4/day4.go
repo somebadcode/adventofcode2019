@@ -14,24 +14,13 @@ type Solver struct {
 	config *viper.Viper
 }
 
-func New(config *viper.Viper) solver.Solver {
+func New(config *viper.Viper) solver.Parts {
 	return &Solver{
 		config: config,
 	}
 }
 
-func (s *Solver) Solve(r io.ReadSeeker) []string {
-	s1 := s.PartOne(r)
-
-	_, err := r.Seek(0, io.SeekStart)
-	if err != nil {
-		return []string{err.Error(), ""}
-	}
-
-	return []string{s1, s.PartTwo(r)}
-}
-
-func (s *Solver) PartOne(r io.Reader) string {
+func (s Solver) PartOne(r io.ReadSeeker) string {
 	pair, err := parseRange(r)
 	if err != nil {
 		return err.Error()
@@ -48,7 +37,7 @@ func (s *Solver) PartOne(r io.Reader) string {
 	return strconv.FormatUint(counter, 10)
 }
 
-func (s *Solver) PartTwo(r io.Reader) string {
+func (s Solver) PartTwo(r io.ReadSeeker) string {
 	pair, err := parseRange(r)
 	if err != nil {
 		return err.Error()
@@ -65,12 +54,12 @@ func (s *Solver) PartTwo(r io.Reader) string {
 	return strconv.FormatUint(counter, 10)
 }
 
-func parseRange(r io.Reader) ([]int64, error) {
+func parseRange(r io.ReadSeeker) ([]int64, error) {
 	b := make([]byte, 50)
 	size, err := r.Read(b)
 	if err != nil {
 		return nil, err
-	} else if size <= 4 {
+	} else if size <= 3 {
 		return nil, errors.New("input too short")
 	}
 

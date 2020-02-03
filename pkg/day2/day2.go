@@ -13,21 +13,10 @@ type Solver struct {
 	config *viper.Viper
 }
 
-func New(config *viper.Viper) solver.Solver {
+func New(config *viper.Viper) solver.Parts {
 	return &Solver{
 		config: config,
 	}
-}
-
-func (s *Solver) Solve(r io.ReadSeeker) []string {
-	s1 := s.PartOne(r)
-
-	_, err := r.Seek(0, io.SeekStart)
-	if err != nil {
-		return []string{err.Error(), ""}
-	}
-
-	return []string{s1, s.PartTwo(r)}
 }
 
 func (s Solver) PartOne(r io.ReadSeeker) string {

@@ -3,7 +3,6 @@ package day4
 import (
 	"bytes"
 	"github.com/somebadcode/adventofcode2019/internal/solver"
-	"github.com/somebadcode/adventofcode2019/internal/testdatafromfile"
 	"github.com/somebadcode/adventofcode2019/pkg/badreadseeker"
 	"github.com/spf13/viper"
 	"io"
@@ -19,7 +18,7 @@ func TestNew(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want solver.Solver
+		want solver.Parts
 	}{
 		{
 			args: args{
@@ -44,7 +43,7 @@ func TestSolver_PartOne(t *testing.T) {
 		config *viper.Viper
 	}
 	type args struct {
-		r io.Reader
+		r io.ReadSeeker
 	}
 	tests := []struct {
 		name   string
@@ -72,7 +71,7 @@ func TestSolver_PartOne(t *testing.T) {
 		},
 		{
 			args: args{
-				r: badreadseeker.New(strings.NewReader("100-900"), io.ErrShortBuffer, badreadseeker.Read),
+				r: badreadseeker.New(bytes.NewReader([]byte("100-900")), io.ErrShortBuffer, badreadseeker.Read),
 			},
 			want: io.ErrShortBuffer.Error(),
 		},
@@ -94,7 +93,7 @@ func TestSolver_PartTwo(t *testing.T) {
 		config *viper.Viper
 	}
 	type args struct {
-		r io.Reader
+		r io.ReadSeeker
 	}
 	tests := []struct {
 		name   string
@@ -134,80 +133,6 @@ func TestSolver_PartTwo(t *testing.T) {
 			}
 			if got := s.PartTwo(tt.args.r); got != tt.want {
 				t.Errorf("PartTwo() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestSolver_Solve(t *testing.T) {
-	type fields struct {
-		config *viper.Viper
-	}
-	type args struct {
-		r io.ReadSeeker
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		want   []string
-	}{
-		{
-			args: args{
-				r: strings.NewReader("12240-12999"),
-			},
-			want: []string{"70", "63"},
-		},
-		{
-			args: args{
-				r: strings.NewReader("1-3"),
-			},
-			want: []string{"input too short", "input too short"},
-		},
-		{
-			args: args{
-				r: bytes.NewReader([]byte{0xff, 0xfe, 0xfd, 0xfc, 0xfb}),
-			},
-			want: []string{"input is not a valid string", "input is not a valid string"},
-		},
-		{
-			args: args{
-				r: strings.NewReader("weeee"),
-			},
-			want: []string{"input is not a string with one separator '-'", "input is not a string with one separator '-'"},
-		},
-		{
-			args: args{
-				r: strings.NewReader("1-333"),
-			},
-			want: []string{"input pairs are too short", "input pairs are too short"},
-		},
-		{
-			args: args{
-				r: badreadseeker.New(strings.NewReader("100-900"), io.ErrShortBuffer, badreadseeker.Read),
-			},
-			want: []string{io.ErrShortBuffer.Error(), io.ErrShortBuffer.Error()},
-		},
-		{
-			args: args{
-				r: badreadseeker.New(strings.NewReader("100-900"), io.ErrShortBuffer, badreadseeker.Seek),
-			},
-			want: []string{io.ErrShortBuffer.Error(), ""},
-		},
-		{
-			args: args{
-				r: testdatafromfile.From("day4.txt"),
-			},
-			want: []string{"544", "334"},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &Solver{
-				config: tt.fields.config,
-			}
-			if got := s.Solve(tt.args.r); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Solve() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -301,7 +226,7 @@ func Test_validatePasswordTwo(t *testing.T) {
 
 func Test_parseRange(t *testing.T) {
 	type args struct {
-		r io.Reader
+		r io.ReadSeeker
 	}
 	tests := []struct {
 		name    string
@@ -336,7 +261,36 @@ func Test_parseRange(t *testing.T) {
 			want:    nil,
 			wantErr: true,
 		},
+		{
+			args: args{
+				r: strings.NewReader("100"),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			args: args{
+				r: strings.NewReader("90000"),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			args: args{
+				r: bytes.NewReader([]byte{0xff, 0xfe, 0xfd, 0xfc, 0xfb}),
+			},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			args: args{
+				r: strings.NewReader("19-1"),
+			},
+			want:    nil,
+			wantErr: true,
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := parseRange(tt.args.r)

@@ -155,7 +155,28 @@ func TestSolver_PartTwo(t *testing.T) {
 			input: 19690720,
 			want:  "100 \u2715 49 + 25 = 4925",
 		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: strings.NewReader("1,12,2,0,0,0,0,0,0,0,0,0,0"),
+			},
+			input: 0,
+			want: "invalid instruction: 0",
+		},
+		{
+			fields: fields{
+				config: viper.New(),
+			},
+			args: args{
+				r: strings.NewReader("1,12,2,0,mio,99,0,0,0,0,0,0,0,0,0,0"),
+			},
+			input: 0,
+			want: "strconv.Atoi: parsing \"mio\": invalid syntax",
+		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			s := Solver{
@@ -164,80 +185,6 @@ func TestSolver_PartTwo(t *testing.T) {
 			s.config.Set("part2.input", tt.input)
 			if got := s.PartTwo(tt.args.r); got != tt.want {
 				t.Errorf("PartTwo() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestSolver_Solve(t *testing.T) {
-	type fields struct {
-		config *viper.Viper
-	}
-	type args struct {
-		r io.ReadSeeker
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		args   args
-		input1 []int
-		input2 int
-		want   []string
-	}{
-		{
-			fields: fields{
-				config: viper.New(),
-			},
-			args: args{
-				r: strings.NewReader("2,0,0,0,99,3,0,0,0,0,0,0,2"),
-			},
-			input1: []int{12, 2},
-			input2: 9,
-			want:   []string{"4", "100 \u2715 5 + 5 = 505"},
-		},
-		{
-			fields: fields{
-				config: viper.New(),
-			},
-			args: args{
-				r: badreadseeker.New(strings.NewReader("2,0,0,0,99,3,0,0,0,0,0,0,2"), io.ErrShortBuffer, badreadseeker.Read),
-			},
-			input1: []int{12, 2},
-			input2: 9,
-			want:   []string{io.ErrShortBuffer.Error(), io.ErrShortBuffer.Error()},
-		},
-		{
-			fields: fields{
-				config: viper.New(),
-			},
-			args: args{
-				r: badreadseeker.New(strings.NewReader("2,0,0,0,99,3,0,0,0,0,0,0,2"), io.ErrShortBuffer, badreadseeker.Seek),
-			},
-			input1: []int{12, 2},
-			input2: 9,
-			want:   []string{io.ErrShortBuffer.Error(), ""},
-		},
-		{
-			fields: fields{
-				config: viper.New(),
-			},
-			args: args{
-				r: strings.NewReader("2,0,0,0,40,3,0,0,0,0,0,0,2"),
-			},
-			input1: []int{12, 2},
-			input2: 9,
-			want:   []string{"invalid instruction: 40", "invalid instruction: 40"},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			s := &Solver{
-				config: tt.fields.config,
-			}
-			s.config.Set("part1.input", tt.input1)
-			s.config.Set("part2.input", tt.input2)
-			if got := s.Solve(tt.args.r); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Solve() = %v, want %v", got, tt.want)
 			}
 		})
 	}

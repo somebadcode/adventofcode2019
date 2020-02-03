@@ -2,6 +2,7 @@ package solver
 
 import "io"
 
-type Solver interface {
-	Solve(r io.ReadSeeker) []string
+type Parts interface {
+	PartOne(r io.ReadSeeker) string
+	PartTwo(r io.ReadSeeker) string
 }
